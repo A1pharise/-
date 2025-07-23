@@ -175,25 +175,26 @@ class MinesweeperGame:
         if self.game_over:
             return
             
-        cell = self.cells[row][col]
         
         # 如果是第一次点击，生成地雷（避开点击位置）
         if self.first_click:
-            self.place_mines(row, col)
+            self.place_mines(range(max(0, row-1), min(self.board_size, row+2)),range(max(0, col-1), min(self.board_size, col+2)))
             self.first_click = False
-        
-        # 如果格子是地雷
-        if (row, col) in self.mines:
-            self.game_over = True
-            self.reveal_all_mines()
-            self.status_label.config(text="Die", fg="#e74c3c")
-            messagebox.showinfo("Game Over", "Your die :-(")
-            return
-        
-        # 揭示格子
-        self.reveal_cell(row, col)
-        
-        # 检查是否获胜
+
+        # 判断是否标记为旗帜
+        if(self.cells[row][col]["text"] == ""):
+            # 如果格子是地雷
+            if (row, col) in self.mines:
+                self.game_over = True
+                self.reveal_all_mines()
+                self.status_label.config(text="Die", fg="#e74c3c")
+                messagebox.showinfo("Game Over", "Your die :-(")
+                return
+            
+            # 揭示格子
+            self.reveal_cell(row, col)
+            
+            # 检查是否获胜
         if self.uncovered_cells == (self.board_size * self.board_size) - self.total_mines:
             self.game_over = True
             self.status_label.config(text="Win", fg="#f1c40f")
@@ -220,7 +221,7 @@ class MinesweeperGame:
             (r, c) 
             for r in range(self.board_size) 
             for c in range(self.board_size)
-            if not (r == safe_row and c == safe_col)
+            if not (r in safe_row and c in safe_col)
         ]
         
         # 随机选择地雷位置
@@ -230,9 +231,10 @@ class MinesweeperGame:
         """揭示格子内容"""
         if self.cells[row][col]["relief"] == "sunken":
             return  # 已经揭示的格子不再处理
-            
+        print(row,col)
+        
         cell = self.cells[row][col]
-        cell.config(relief="sunken", bg="#bdc3c7")
+        cell.config(relief="sunken", bg="#dfe6ea")
         self.uncovered_cells += 1
         
         # 计算周围地雷数量
